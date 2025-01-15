@@ -134,5 +134,8 @@ if [ "$OVMF" = "on" ]; then
         "
     fi
 fi
-
+QEMU_ARGS="${QEMU_ARGS} \
+            -device virtio-rng \
+            -device virtio-sound \
+        "
 echo $QEMU_ARGS
