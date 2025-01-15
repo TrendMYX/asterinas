@@ -22,10 +22,11 @@ use device::{
     network::device::NetworkDevice,
     socket::{self, device::SocketDevice},
     VirtioDeviceType,
+    entropy::EntropyDevice,
 };
 use log::{error, warn};
 use transport::{mmio::VIRTIO_MMIO_DRIVER, pci::VIRTIO_PCI_DRIVER, DeviceStatus};
-
+use crate::device::sound::device::SoundDevice;
 use crate::transport::VirtioTransport;
 
 pub mod device;
@@ -69,6 +70,8 @@ fn virtio_component_init() -> Result<(), ComponentInitError> {
             VirtioDeviceType::Network => NetworkDevice::init(transport),
             VirtioDeviceType::Console => ConsoleDevice::init(transport),
             VirtioDeviceType::Socket => SocketDevice::init(transport),
+            VirtioDeviceType::Sound => SoundDevice::init(transport),
+            VirtioDeviceType::Entropy => EntropyDevice::init(transport),
             _ => {
                 warn!("[Virtio]: Found unimplemented device:{:?}", device_type);
                 Ok(())
@@ -104,6 +107,8 @@ fn negotiate_features(transport: &mut Box<dyn VirtioTransport>) {
         VirtioDeviceType::Input => InputDevice::negotiate_features(device_specified_features),
         VirtioDeviceType::Console => ConsoleDevice::negotiate_features(device_specified_features),
         VirtioDeviceType::Socket => SocketDevice::negotiate_features(device_specified_features),
+        VirtioDeviceType::Sound => SoundDevice::negotiate_features(device_specified_features),
+        VirtioDeviceType::Entropy => EntropyDevice::negotiate_features(device_specified_features),
         _ => device_specified_features,
     };
     let mut support_feature = Feature::from_bits_truncate(features);
